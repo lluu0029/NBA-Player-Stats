@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Teams and Players</title>
+</head>
+<body>
+
+    <label for="teamDropdown">Select NBA Team:</label>
+    <select id="teamDropdown" onchange="populatePlayers()">
+        {% for key in team_players_dict.keys() %}
+            <option value="{{ key }}">{{ key }}</option>
+        {% endfor %}
+        <!-- Add more NBA teams as needed -->
+    </select>
+
+    <br>
+
+    <label for="playerDropdown">Select Player:</label>
+    <select id="playerDropdown" onchange="sendID()">
+        <!-- Populated dynamically based on the selected team -->
+    </select>
+
+    <script>
+        // Dictionary containing data
+        const nbaTeams = {{ team_players_dict|tojson|safe }};
+
+        function populatePlayers() {
+            const teamDropdown = document.getElementById('teamDropdown');
+            const playerDropdown = document.getElementById('playerDropdown');
+            const selectedTeam = teamDropdown.value;
+
+            // Clear previous options
+            playerDropdown.innerHTML = '';
+
+            // Populate player dropdown based on the selected team
+            const players = nbaTeams[selectedTeam];
+
+            if (players) {
+                players.forEach(function(item) {
+                    var player_name = item['DISPLAY_FIRST_LAST'];
+                    var player_id = item['PERSON_ID'];
+                    const option = document.createElement('option');
+                    option.value = player_id;
+                    option.id = player_id;
+                    option.textContent = player_name;
+                    playerDropdown.appendChild(option);
+                });
+            }
+        }
+
+        function sendID() {
+            const dropdown = document.getElementById('playerDropdown');
+            const selectedOption = dropdown.options[dropdown.selectedIndex];
+
+            // Retrieve the id attribute of the selected option
+            const selectedId = selectedOption.getAttribute('id');
+
+            fetch('/process_player_dropdown', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ selected_id: selectedId }),
+            })
+
+            console.log(selectedId)
+        }
+    </script>
+
+</body>
+</html>

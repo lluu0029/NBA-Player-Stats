@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Form</title>
+</head>
+<body>
+
+    <h2>Stats</h2>
+
+    <form action="/submit" method="post">
+        <!-- Text Input -->
+        <label for="Points">Pts:</label>
+        <input type="text" id="pts" name="pts" required>
+
+        <!-- Submit Button -->
+        <input type="submit" value="Submit">
+    </form>
+
+    <p>{{ pts }}</p>
+
+</body>
+</html>
