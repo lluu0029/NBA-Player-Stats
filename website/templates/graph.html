@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D3.js Bar Chart Example</title>
+    <title>w stats</title>
     <!-- Include D3.js library -->
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="C:\Users\Lachlan\Documents\GitHub\NBA-Stat-Website\website\templates\style.css">
     <!--    Bootstrap-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <!--    Semantic UI -->
@@ -23,7 +24,7 @@
         {% endfor %}
         <!-- Add more NBA teams as needed -->
     </select>
-
+    
     <br>
     <br>
 
@@ -32,6 +33,10 @@
 
         <!-- Populated dynamically based on the selected team -->
     </select>
+
+    <br>
+    <br>
+    <button class="pts-button">Points</button>
 
     <script>
         // Dictionary containing data
@@ -118,7 +123,47 @@
 
         // The initializeChart function definition goes here
         let myChart; // Declare a variable to hold the chart instance
-
+        var canvas = document.getElementById("myChart");
+        var ctx = canvas.getContext("2d");
+        var horizonalLinePlugin = {
+        afterDraw: function(chartInstance) {
+            var yScale = chartInstance.scales["y-axis-0"];
+            var canvas = chartInstance.chart;
+            var ctx = canvas.ctx;
+            var index;
+            var line;
+            var style;
+            if (chartInstance.options.horizontalLine) {
+            for (index = 0; index < chartInstance.options.horizontalLine.length; index++) {
+                line = chartInstance.options.horizontalLine[index];
+                if (!line.style) {
+                style = "rgba(169,169,169, .6)";
+                } else {
+                style = line.style;
+                }
+                if (line.y) {
+                yValue = yScale.getPixelForValue(line.y);
+                } else {
+                yValue = 0;
+                }
+                ctx.lineWidth = 3;
+                if (yValue) {
+                ctx.beginPath();
+                ctx.moveTo(0, yValue);
+                ctx.lineTo(canvas.width, yValue);
+                ctx.strokeStyle = style;
+                ctx.stroke();
+                }
+                if (line.text) {
+                ctx.fillStyle = style;
+                ctx.fillText(line.text, 0, yValue + ctx.lineWidth);
+                }
+            }
+            return;
+            };
+        }
+        };
+        Chart.pluginService.register(horizonalLinePlugin);
         function initializeChart(dates, points) {
             const canvas = document.getElementById("myChart");
             const context = canvas.getContext("2d");
@@ -145,20 +190,17 @@
                                 display: false
                             },
                         },
-                        annotation: {
-                          annotations: [{
-                            type: 'line',
-                            mode: 'horizontal',
-                            scaleID: 'y-axis-0',
-                            value: 10,
-                            borderColor: 'rgb(75, 192, 192)',
-                            borderWidth: 4,
-                            label: {
-                              enabled: false,
-                              content: 'Test label'
-                            }
-                          }]
-                        }
+                        "horizontalLine": [{
+                        "y": 4,
+                        "style": "rgba(255, 0, 0, .4)",
+                        "text": "max"
+                        }, {
+                        "y": 5,
+                        "style": "#00ffff",
+                        }, {
+                        "y": 6,
+                        "text": "min"
+                        }]
                     }
                 });
             } else {
