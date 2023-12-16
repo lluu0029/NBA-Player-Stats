@@ -44,6 +44,8 @@ def process_player():
         team_players_dict = pickle.load(file)
 
     selected_id = request.json.get('player_id')
+    selected_stat = request.json.get('selected_stat')
+    print("Selected stat: ", selected_stat)
     print(selected_id)
     player_df = player_log_df(selected_id, season)
     pts_list = player_df['PTS'].head(15).to_list()

@@ -3,40 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>w stats</title>
+    <title>Stats</title>
     <!-- Include D3.js library -->
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="C:\Users\Lachlan\Documents\GitHub\NBA-Stat-Website\website\templates\style.css">
     <!--    Bootstrap-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <!--    Semantic UI -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h2>Stats</h2>
+    <div class="center-container">
+        <h2>Stats</h2>
 
-    <label for="teamDropdown">Select NBA Team:</label>
-    <select class="ui search dropdown" id="teamDropdown" onchange="populatePlayers()">
-        <option value="" selected disabled>Select Team</option>
-        {% for key in team_players_dict.keys() %}
-            <option value="{{ key }}">{{ key }}</option>
-        {% endfor %}
-        <!-- Add more NBA teams as needed -->
-    </select>
-    
-    <br>
-    <br>
+        <label for="teamDropdown">Select NBA Team:</label>
+        <select class="ui search dropdown" id="teamDropdown" onchange="populatePlayers()">
+            <option value="" selected disabled>Select Team</option>
+            {% for key in team_players_dict.keys() %}
+                <option value="{{ key }}">{{ key }}</option>
+            {% endfor %}
+            <!-- Add more NBA teams as needed -->
+        </select>
+        
+        <br>
+        <br>
 
-    <label for="playerDropdown">Select Player:</label>
-    <select class="ui search dropdown" id="playerDropdown" onchange="sendID()">
+        <label for="playerDropdown">Select Player:</label>
+        <select class="ui search dropdown" id="playerDropdown" onchange="sendID()">
 
-        <!-- Populated dynamically based on the selected team -->
-    </select>
+            <!-- Populated dynamically based on the selected team -->
+        </select>
 
-    <br>
-    <br>
-    <button class="pts-button">Points</button>
+        <br>
+        <br>
+        <div class="button-group">
+            <!-- By default, 'points' button is selected -->
+            <button class='selected' onclick="selectButton(1)"; "sendID();" id="pts" class="pts-button">Points</button>
+            <button onclick="selectButton(2)" id="ast" class="ast-button">Assists</button>
+            <button onclick="selectButton(3)" id="reb" class="reb-button">Rebounds</button>
+            <button onclick="selectButton(4)" id="pts-ast" class="pts-ast-button">Pts + Ast</button>
+            <button onclick="selectButton(5)" id="pts-reb" class="pts-reb-button">Pts + Reb</button>
+            <button onclick="selectButton(6)" id="ast-reb" class="ast-reb-button">Ast + Reb</button>
+            <button onclick="selectButton(7)" id="pra" class="pra-button">PRA</button>
+            <button onclick="selectButton(8)" id="threes" class="threes-button">Threes</button>
+        </div>
+        <script>
+            function selectButton(buttonNumber) {
+                // NodeList of all buttons in 'button-group'.
+                const buttons = document.querySelectorAll('.button-group button');
+                
+                // Remove 'selected' class (styles.css) from all buttons.
+                buttons.forEach(button => button.classList.remove('selected'));
+                
+                // Adds 'selected' class (styles.css) to the chosen button.
+                buttons[buttonNumber - 1].classList.add('selected');
+            }
+        </script>
 
     <script>
         // Dictionary containing data
@@ -73,20 +96,32 @@
                 });
             }
         }
-
+        // Function which sends the player id and the selected stats to the route '/process_player' to retrieve the data.
         function sendID() {
-            const dropdown = document.getElementById('playerDropdown');
-            const selectedOption = dropdown.options[dropdown.selectedIndex];
+            const player_dropdown = document.getElementById('playerDropdown');
 
-            // Retrieve the id attribute of the selected option
-            const player_id = selectedOption.getAttribute('id');
+            const player_id = player_dropdown.value;
+            if(player_id === ""){
+                return;
+            }
 
+            // Determines which button is selected and which stat to request.
+            const buttons = document.querySelectorAll('.button-group button');
+            let selected_stat = "";
+            buttons.forEach((button, index) => {
+                const isSelected = button.classList.contains('selected');
+                if(isSelected){
+                    selected_stat = button.id;
+                    console.log({selected_stat});
+                }
+            });
+            
             fetch('/process_player', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ player_id: player_id }),
+                body: JSON.stringify({ player_id: player_id , selected_stat: selected_stat}),
             })
             .then(response => response.json())
             .then(data => {
@@ -108,7 +143,7 @@
     <br>
     <form method="post">
         <!-- Text Input -->
-        <label for="Points">Pts:</label>
+        <label for="Points">Over:</label>
         <input type="text" id="pts" name="pts" required>
 
         <!-- Submit Button -->
@@ -214,6 +249,6 @@
 
 <p>Odds: {{ odds }}</p>
 <p>{{ percent }}</p>
-
+</div>
 </body>
 </html>
