@@ -29,7 +29,6 @@ def player_log_df(player_id, season):
                 gamelogs_arr[key] = new_array
     player_df = pd.DataFrame(gamelogs_arr)
 
-
     return player_df
 
 

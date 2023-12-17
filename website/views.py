@@ -47,15 +47,42 @@ def process_player():
     selected_stat = request.json.get('selected_stat')
     print("Selected stat: ", selected_stat)
     print(selected_id)
+
+    # Retrieve dataframe containing player stats.
     player_df = player_log_df(selected_id, season)
-    pts_list = player_df['PTS'].head(15).to_list()
-    print(pts_list)
+
+    # Creating list of data based on the selected stat.
+    if selected_stat == 'pts':
+        stat_list = player_df['PTS'].head(15).to_list()
+    elif selected_stat == 'ast':
+        stat_list = player_df['AST'].head(15).to_list()
+    elif selected_stat == 'reb':
+        stat_list = player_df['REB'].head(15).to_list()
+    elif selected_stat == 'pts-ast':
+        pts_list = player_df['PTS'].head(15)
+        ast_list = player_df['AST'].head(15)
+        stat_list = (pts_list + ast_list).to_list()
+    elif selected_stat == 'pts-reb':
+        pts_list = player_df['PTS'].head(15)
+        reb_list = player_df['REB'].head(15)
+        stat_list = (pts_list + reb_list).to_list()
+    elif selected_stat == 'reb-ast':
+        reb_list = player_df['REB'].head(15)
+        ast_list = player_df['AST'].head(15)
+        stat_list = (reb_list + ast_list).to_list()
+    elif selected_stat == 'pra':
+        pts_list = player_df['PTS'].head(15)
+        reb_list = player_df['REB'].head(15)
+        ast_list = player_df['AST'].head(15)
+        stat_list = (pts_list + ast_list + reb_list).to_list()
+    elif selected_stat == 'threes':
+        stat_list = player_df['FG3M'].head(15).to_list()
+
     date_list = player_df['GAME_DATE'].head(15).to_list()
     new_date_list = []
     for date in date_list:
         new_date_list.append(date[:10])
-    data = {'dates': new_date_list, 'stats': pts_list}
+    data = {'dates': new_date_list, 'stats': stat_list}
 
     return jsonify(data)
-    # return render_template('graph.html', pts=pts_list, date=date_list, team_dict=team_dict,
-    #                         team_players_dict=team_players_dict)
+
