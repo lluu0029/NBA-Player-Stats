@@ -43,10 +43,9 @@ def process_player():
     with open(file_path, 'rb') as file:
         team_players_dict = pickle.load(file)
 
+    # Get data sent from JavaScript.
     selected_id = request.json.get('player_id')
     selected_stat = request.json.get('selected_stat')
-    print("Selected stat: ", selected_stat)
-    print(selected_id)
 
     # Retrieve dataframe containing player stats.
     player_df = player_log_df(selected_id, season)

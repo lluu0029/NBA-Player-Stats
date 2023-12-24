@@ -30,7 +30,7 @@
         <br>
 
         <label for="playerDropdown">Select Player:</label>
-        <select class="ui search dropdown" id="playerDropdown" onchange="sendID()">
+        <select class="ui search dropdown" id="playerDropdown" onchange="sendID(); unhideGamesForm();">
 
             <!-- Populated dynamically based on the selected team -->
         </select>
@@ -150,15 +150,32 @@
         <button class="ui button">Submit</button>
     </form>
 
+    <form id="num-games" method="post">
+        <!-- Text Input -->
+        <label for="games">Select Last Number of Games</label>
+        <br>
+        <input type="text" id="games" name="games" value="15">
+
+        <!-- Submit Button -->
+        <button class="ui button">Submit</button>
+    </form>
+
+
+    <script>
+        function unhideGamesForm() {
+            var form = document.getElementById('num-games')
+            form.style.display = "block";
+        }
+    </script>
     <h2>Chart</h2>
 
     <!-- Container for the chart -->
-    <canvas id="myChart" style="width:100%; max-width:800px; max-height:400px;"></canvas>
+    <canvas id="statsChart"></canvas>
     <script>
 
         // The initializeChart function definition goes here
-        let myChart; // Declare a variable to hold the chart instance
-        var canvas = document.getElementById("myChart");
+        let statsChart; // Declare a variable to hold the chart instance
+        var canvas = document.getElementById("statsChart");
         var ctx = canvas.getContext("2d");
         var horizonalLinePlugin = {
         afterDraw: function(chartInstance) {
@@ -200,12 +217,12 @@
         };
         Chart.pluginService.register(horizonalLinePlugin);
         function initializeChart(dates, points) {
-            const canvas = document.getElementById("myChart");
+            const canvas = document.getElementById("statsChart");
             const context = canvas.getContext("2d");
 
-            // If myChart is not initialized, create a new chart
-            if (!myChart) {
-                myChart = new Chart(context, {
+            // If statsChart is not initialized, create a new chart
+            if (!statsChart) {
+                statsChart = new Chart(context, {
                     type: "bar",
                     data: {
                         labels: dates,
@@ -240,9 +257,9 @@
                 });
             } else {
                 // Update the existing chart with new data
-                myChart.data.labels = dates;
-                myChart.data.datasets[0].data = points;
-                myChart.update();
+                statsChart.data.labels = dates;
+                statsChart.data.datasets[0].data = points;
+                statsChart.update();
             }
         }
     </script>

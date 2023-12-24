@@ -24,3 +24,17 @@
 .center-container {
     text-align: center;
 }
+
+#statsChart {
+    margin:auto;
+    width:100%; 
+    max-width:800px; 
+    max-height:400px;
+}
+
+#num-games {
+    position: absolute;
+    top: 500px;
+    left: 1450px;
+    display: none;
+}
