@@ -99,11 +99,14 @@
         // Function which sends the player id and the selected stats to the route '/process_player' to retrieve the data.
         function sendID() {
             const player_dropdown = document.getElementById('playerDropdown');
+            const selected_num_games = document.getElementById('games');
 
             const player_id = player_dropdown.value;
             if(player_id === ""){
                 return;
             }
+            
+            const num_games = selected_num_games.value;
 
             // Determines which button is selected and which stat to request.
             const buttons = document.querySelectorAll('.button-group button');
@@ -121,7 +124,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ player_id: player_id , selected_stat: selected_stat}),
+                body: JSON.stringify({ player_id: player_id , selected_stat: selected_stat, num_games: num_games}),
             })
             .then(response => response.json())
             .then(data => {
@@ -154,7 +157,7 @@
         <!-- Text Input -->
         <label for="games">Select Last Number of Games</label>
         <br>
-        <input type="text" id="games" name="games" value="15">
+        <input type="text" id="games" name="games" value="15" oninput="sendID()">
 
         <!-- Submit Button -->
         <button class="ui button">Submit</button>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3.js Bar Chart Example</title>
+    <!-- Include D3.js library -->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!--    Bootstrap-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!--    Semantic UI -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+</head>
+<body>
+    <h2>Stats</h2>
+
+    <label for="teamDropdown">Select NBA Team:</label>
+    <select class="ui search dropdown" id="teamDropdown" onchange="populatePlayers()">
+        <option value="" selected disabled>Select Team</option>
+        {% for key in team_players_dict.keys() %}
+            <option value="{{ key }}">{{ key }}</option>
+        {% endfor %}
+        <!-- Add more NBA teams as needed -->
+    </select>
+
+    <br>
+    <br>
+
+    <label for="playerDropdown">Select Player:</label>
+    <select class="ui search dropdown" id="playerDropdown" onchange="sendID()">
+
+        <!-- Populated dynamically based on the selected team -->
+    </select>
+
+    <script>
+        // Dictionary containing data
+        const nbaTeams = {{ team_players_dict|tojson|safe }};
+
+        function populatePlayers() {
+            const teamDropdown = document.getElementById('teamDropdown');
+            const playerDropdown = document.getElementById('playerDropdown');
+            const selectedTeam = teamDropdown.value;
+
+            // Clear previous options
+            playerDropdown.innerHTML = '';
+
+            // Populate player dropdown based on the selected team
+            const players = nbaTeams[selectedTeam];
+
+            // Default option (blank)
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";  // Set the value to an empty string or any default value
+            defaultOption.text = "Select Player";  // Set the text content
+            defaultOption.selected = true;  // Set the selected attribute
+            defaultOption.disabled = true;  // Set the disabled attribute
+            // Append the option to the dropdown
+            playerDropdown.appendChild(defaultOption);
+            if (players) {
+                players.forEach(function(item) {
+                    var player_name = item['DISPLAY_FIRST_LAST'];
+                    var player_id = item['PERSON_ID'];
+                    const option = document.createElement('option');
+                    option.value = player_id;
+                    option.id = player_id;
+                    option.textContent = player_name;
+                    playerDropdown.appendChild(option);
+                });
+            }
+        }
+
+        function sendID() {
+            const dropdown = document.getElementById('playerDropdown');
+            const selectedOption = dropdown.options[dropdown.selectedIndex];
+
+            // Retrieve the id attribute of the selected option
+            const player_id = selectedOption.getAttribute('id');
+
+            fetch('/process_player', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ player_id: player_id }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Data received from the server
+                console.log('Data received:', data);
+
+                // Call a function to initialize or update the chart
+                initializeChart(data.dates, data.stats);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+
+    </script>
+
+    <br>
+    <br>
+    <form method="post">
+        <!-- Text Input -->
+        <label for="Points">Pts:</label>
+        <input type="text" id="pts" name="pts" required>
+
+        <!-- Submit Button -->
+        <button class="ui button">Submit</button>
+    </form>
+
+    <h2>Chart</h2>
+
+    <!-- Container for the chart -->
+    <canvas id="myChart" style="width:100%; max-width:800px; max-height:400px;"></canvas>
+    <script>
+
+        // The initializeChart function definition goes here
+        let myChart; // Declare a variable to hold the chart instance
+        
+        function initializeChart(dates, points) {
+            const canvas = document.getElementById("myChart");
+            const context = canvas.getContext("2d");
+
+            // If myChart is not initialized, create a new chart
+            if (!myChart) {
+                myChart = new Chart(context, {
+                    type: "bar",
+                    data: {
+                        labels: dates,
+                        datasets: [{
+                            backgroundColor: 'blue',
+                            data: points,
+                            showLine: true, // Ensure this property is set
+                            tooltip: false, // Disable tooltips for this dataset
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 10,
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        animation: {
+                            onComplete: function () {
+                                const scale = myChart.scales.y;
+                                const value = 5; // Adjust this value to set the position of the horizontal line
+                                const y = scale.getPixelForValue(value);
+
+                                // Draw horizontal line
+                                context.beginPath();
+                                context.moveTo(100, y);
+                                context.lineTo(1000, y);
+                                context.strokeStyle = 'red'; // Adjust the line color
+                                context.lineWidth = 4; // Adjust the line width
+                                context.setLineDash([5, 5]); // Adjust the line dash pattern if needed
+                                context.stroke();
+
+                                // Draw label
+                                context.fillStyle = 'black'; // Adjust the label color
+                                context.textAlign = 'right';
+                                context.fillText('Average', 1000, y); // Adjust label position
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Update the existing chart with new data
+                myChart.data.labels = dates;
+                myChart.data.datasets[0].data = points;
+                myChart.update();
+            }
+        }
+    </script>
+
+<p>Odds: {{ odds }}</p>
+<p>{{ percent }}</p>
+
+</body>
+</html>
