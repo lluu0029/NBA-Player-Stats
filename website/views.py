@@ -8,7 +8,6 @@ from website.create_team_players_dict import get_players_in_team
 
 views = Blueprint('views', __name__)
 
-player_id = '201939'
 season = '2023-24'
 
 nba_teams = teams.get_teams()
@@ -16,10 +15,7 @@ team_dict = {}
 for team in nba_teams:
     team_dict[team['abbreviation']] = team['id']
 
-
-
-
-
+# Route for main page
 @views.route('/', methods=['GET', 'POST'])
 def main_stats():
     file_path = os.path.join(os.path.dirname(__file__), 'team_players_dict.pkl')
@@ -28,15 +24,7 @@ def main_stats():
     return render_template('graph.html', team_dict=team_dict, team_players_dict=team_players_dict)
 
 
-@views.route('/menu')
-def menu():
-    file_path = os.path.join(os.path.dirname(__file__), 'team_players_dict.pkl')
-    with open(file_path, 'rb') as file:
-        team_players_dict = pickle.load(file)
-
-    return render_template('teams.html', team_players_dict=team_players_dict)
-
-
+# Route for retrieving player statistics
 @views.route('/process_player', methods=['GET', 'POST'])
 def process_player():
     file_path = os.path.join(os.path.dirname(__file__), 'team_players_dict.pkl')
@@ -47,8 +35,6 @@ def process_player():
     selected_id = request.json.get('player_id')
     selected_stat = request.json.get('selected_stat')
     num_games = int(request.json.get('num_games'))
-
-    print(num_games)
 
     # Retrieve dataframe containing player stats.
     player_df = player_log_df(selected_id, season)
