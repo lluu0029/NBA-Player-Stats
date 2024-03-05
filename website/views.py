@@ -66,11 +66,19 @@ def process_player():
     elif selected_stat == 'threes':
         stat_list = player_df['FG3M'].head(num_games).to_list()
 
+    # List for date and opponent of games.
     date_list = player_df['GAME_DATE'].head(num_games).to_list()
-    new_date_list = []
-    for date in date_list:
-        new_date_list.append(date[:10])
-    data = {'dates': new_date_list, 'stats': stat_list}
+    opponent_list = player_df['MATCHUP'].head(num_games).to_list()
 
+    # List containing data for both date and opponent.
+    date_opp_list = []
+    for i in range(len(date_list)):
+        date = date_list[i][:10]
+        opponent = opponent_list[i][4:]
+        value = str(date) + ' ' + str(opponent)
+        date_opp_list.append(value)
+
+    # Returning data.
+    data = {'dates': date_opp_list, 'stats': stat_list}
     return jsonify(data)
 
