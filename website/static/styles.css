@@ -33,8 +33,34 @@
 }
 
 #num-games {
-    position: absolute;
-    top: 500px;
-    left: 1450px;
+    margin: 0 auto;
     display: none;
+}
+
+#line-form {
+    margin: 0 auto;
+    display: none;
+}
+
+label.faded {
+    color: #000;
+    opacity: 0.5;
+}
+
+#hit-rate-table {
+    border-collapse: collapse; /* Collapse borders */
+    width: 30%; /* Set table width */
+    margin: 0 auto;
+}
+
+#hit-rate-table th {
+    border: 1px solid black; /* Add solid black border to th elements */
+    padding: 8px; /* Add padding to th elements */
+    text-align: left; /* Align text to the left within th elements */
+}
+
+#hit-rate-table td {
+    border: 1px solid black; /* Add solid black border to th elements */
+    padding: 8px; /* Add padding to th elements */
+    text-align: left; /* Align text to the left within th elements */
 }

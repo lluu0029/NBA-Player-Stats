@@ -78,3 +78,13 @@ def get_players_in_team(team_id):
     player_list = players_in_team[['PERSON_ID', 'DISPLAY_FIRST_LAST']].to_dict(orient='records')
 
     return player_list
+
+# Returns a list for the count of values over and under the input.
+def line_counter(list, line_value):
+    over_counter = 0
+    for item in list:
+        if item > line_value:
+            over_counter += 1
+    under = len(list) - over_counter
+
+    return [over_counter, under]

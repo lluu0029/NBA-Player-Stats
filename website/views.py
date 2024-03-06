@@ -2,7 +2,7 @@ import os
 import pickle
 
 from flask import Blueprint, render_template, request, redirect, jsonify
-from website.functions import player_log_df, odds_calc
+from website.functions import player_log_df, odds_calc, line_counter
 from nba_api.stats.static import teams
 from website.create_team_players_dict import get_players_in_team
 
@@ -36,35 +36,67 @@ def process_player():
     selected_stat = request.json.get('selected_stat')
     num_games = int(request.json.get('num_games'))
 
+    try:
+        line = int(request.json.get('line'))
+    except ValueError:
+        line = None
+
+    print('line = ', line)
+    line_list = ['', '']
+
     # Retrieve dataframe containing player stats.
     player_df = player_log_df(selected_id, season)
 
-    # Creating list of data based on the selected stat.
+    # Creating list of data based on the selected stat and
+    # data for over and under line.
     if selected_stat == 'pts':
         stat_list = player_df['PTS'].head(num_games).to_list()
+        if line is not None:
+            line_list = line_counter(stat_list, line)
+
     elif selected_stat == 'ast':
         stat_list = player_df['AST'].head(num_games).to_list()
+        if line is not None:
+            line_list = line_counter(stat_list, line)
+                
     elif selected_stat == 'reb':
         stat_list = player_df['REB'].head(num_games).to_list()
+        if line is not None:
+            line_list = line_counter(stat_list, line)
+
     elif selected_stat == 'pts-ast':
         pts_list = player_df['PTS'].head(num_games)
         ast_list = player_df['AST'].head(num_games)
         stat_list = (pts_list + ast_list).to_list()
+        if line is not None:
+            line_list = line_counter(stat_list, line)
+
     elif selected_stat == 'pts-reb':
         pts_list = player_df['PTS'].head(num_games)
         reb_list = player_df['REB'].head(num_games)
         stat_list = (pts_list + reb_list).to_list()
+        if line is not None:
+            line_list = line_counter(stat_list, line)
+
     elif selected_stat == 'reb-ast':
         reb_list = player_df['REB'].head(num_games)
         ast_list = player_df['AST'].head(num_games)
         stat_list = (reb_list + ast_list).to_list()
+        if line is not None:
+            line_list = line_counter(stat_list, line)
+
     elif selected_stat == 'pra':
         pts_list = player_df['PTS'].head(num_games)
         reb_list = player_df['REB'].head(num_games)
         ast_list = player_df['AST'].head(num_games)
         stat_list = (pts_list + ast_list + reb_list).to_list()
+        if line is not None:
+            line_list = line_counter(stat_list, line)
+
     elif selected_stat == 'threes':
         stat_list = player_df['FG3M'].head(num_games).to_list()
+        if line is not None:
+            line_list = line_counter(stat_list, line)
 
     # List for date and opponent of games.
     date_list = player_df['GAME_DATE'].head(num_games).to_list()
@@ -78,7 +110,9 @@ def process_player():
         value = str(date) + ' ' + str(opponent)
         date_opp_list.append(value)
 
+
     # Returning data.
-    data = {'dates': date_opp_list, 'stats': stat_list}
+    data = {'dates': date_opp_list, 'stats': stat_list, 'line_stats': line_list}
+    print(line_list)
     return jsonify(data)
 

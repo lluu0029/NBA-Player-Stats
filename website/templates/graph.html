@@ -99,14 +99,16 @@
         // Function which sends the player id and the selected stats to the route '/process_player' to retrieve the data.
         function sendID() {
             const player_dropdown = document.getElementById('playerDropdown');
-            const selected_num_games = document.getElementById('games');
-
             const player_id = player_dropdown.value;
             if(player_id === ""){
                 return;
             }
-            
+
+            const selected_num_games = document.getElementById('games');
             const num_games = selected_num_games.value;
+
+            const line_form = document.getElementById('line')
+            const line = line_form.value;
 
             // Determines which button is selected and which stat to request.
             const buttons = document.querySelectorAll('.button-group button');
@@ -124,7 +126,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ player_id: player_id , selected_stat: selected_stat, num_games: num_games}),
+                body: JSON.stringify({ player_id: player_id , selected_stat: selected_stat, num_games: num_games, line: line}),
             })
             .then(response => response.json())
             .then(data => {
@@ -133,6 +135,22 @@
 
                 // Call a function to initialize or update the chart
                 initializeChart(data.dates, data.stats);
+                
+                // Updating values in hit-rate-table
+                if (data.line_stats[0] === '') {
+                    document.getElementById('over').innerText = '';
+                    document.getElementById('under').innerText = '';
+                }
+                else {
+                    document.getElementById('over').innerText = data.line_stats[0].toString() + ' of ' + num_games.toString();
+                    document.getElementById('under').innerText = data.line_stats[1].toString() + ' of ' + num_games.toString();
+                    document.getElementById('overhr').innerText = 'Over ' + line.toString() + '.5';
+                    document.getElementById('underhr').innerText = 'Under ' + line.toString() + '.5';
+                    document.getElementById('over-perc').innerText = Math.round((data.line_stats[0] / num_games)*100, 0).toString() + '%';
+                    document.getElementById('under-perc').innerText = Math.round((data.line_stats[1] / num_games)*100, 0).toString() + '%';
+                    document.getElementById('over-odds').innerText = (num_games / data.line_stats[0]).toFixed(2);
+                    document.getElementById('under-odds').innerText = (num_games / data.line_stats[1]).toFixed(2);
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -144,14 +162,6 @@
 
     <br>
     <br>
-    <form method="post">
-        <!-- Text Input -->
-        <label for="Points">Over:</label>
-        <input type="text" id="pts" name="pts" required>
-
-        <!-- Submit Button -->
-        <button class="ui button">Submit</button>
-    </form>
 
     <form id="num-games" method="post">
         <!-- Text Input -->
@@ -163,11 +173,13 @@
 
     <script>
         function unhideGamesForm() {
-            var form = document.getElementById('num-games')
-            form.style.display = "block";
+            var games_form = document.getElementById('num-games')
+            games_form.style.display = "block";
+
+            var line_form = document.getElementById('line-form')
+            line_form.style.display = "block";
         }
     </script>
-    <h2>Chart</h2>
 
     <!-- Container for the chart -->
     <canvas id="statsChart"></canvas>
@@ -264,8 +276,41 @@
         }
     </script>
 
-<p>Odds: {{ odds }}</p>
-<p>{{ percent }}</p>
+<br>
+<form id="line-form" method="post">
+    <!-- Text Input -->
+    <label for="line">Over/Under Line</label>
+    <br>
+    <input type="text" id="line" value="" placeholder="Enter line" oninput="sendID()">
+</form>
+<br>
+<br>
+<table id="hit-rate-table">
+    <thead>
+        <tr>
+            <th></th>
+            <th id="overhr">Over</th>
+            <th id="underhr">Under</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Hit Rate</td>
+            <td id="over"></td>
+            <td id="under"></td>
+        </tr>
+        <tr>
+            <td>Percent</td>
+            <td id="over-perc"></td>
+            <td id="under-perc"></td>
+        </tr>
+        <tr>
+            <td>Implied Odds</td>
+            <td id="over-odds"></td>
+            <td id="under-odds"></td>
+        </tr>
+    </tbody>
+</table>
 </div>
 </body>
 </html>
