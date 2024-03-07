@@ -41,7 +41,6 @@ def process_player():
     except ValueError:
         line = None
 
-    print('line = ', line)
     line_list = ['', '']
 
     # Retrieve dataframe containing player stats.
@@ -112,7 +111,6 @@ def process_player():
 
 
     # Returning data.
-    data = {'dates': date_opp_list, 'stats': stat_list, 'line_stats': line_list}
-    print(line_list)
+    data = {'dates': date_opp_list, 'stats': stat_list, 'line_stats': line_list, 'num_games_returned': len(stat_list)}
     return jsonify(data)
 

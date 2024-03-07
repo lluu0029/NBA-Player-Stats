@@ -142,14 +142,14 @@
                     document.getElementById('under').innerText = '';
                 }
                 else {
-                    document.getElementById('over').innerText = data.line_stats[0].toString() + ' of ' + num_games.toString();
-                    document.getElementById('under').innerText = data.line_stats[1].toString() + ' of ' + num_games.toString();
+                    document.getElementById('over').innerText = data.line_stats[0].toString() + ' of ' + data.num_games_returned.toString();
+                    document.getElementById('under').innerText = data.line_stats[1].toString() + ' of ' + data.num_games_returned.toString();
                     document.getElementById('overhr').innerText = 'Over ' + line.toString() + '.5';
                     document.getElementById('underhr').innerText = 'Under ' + line.toString() + '.5';
-                    document.getElementById('over-perc').innerText = Math.round((data.line_stats[0] / num_games)*100, 0).toString() + '%';
-                    document.getElementById('under-perc').innerText = Math.round((data.line_stats[1] / num_games)*100, 0).toString() + '%';
-                    document.getElementById('over-odds').innerText = (num_games / data.line_stats[0]).toFixed(2);
-                    document.getElementById('under-odds').innerText = (num_games / data.line_stats[1]).toFixed(2);
+                    document.getElementById('over-perc').innerText = Math.round((data.line_stats[0] / data.num_games_returned)*100, 0).toString() + '%';
+                    document.getElementById('under-perc').innerText = Math.round((data.line_stats[1] / data.num_games_returned)*100, 0).toString() + '%';
+                    document.getElementById('over-odds').innerText = (data.num_games_returned / data.line_stats[0]).toFixed(2);
+                    document.getElementById('under-odds').innerText = (data.num_games_returned / data.line_stats[1]).toFixed(2);
                 }
             })
             .catch(error => {
